@@ -35,10 +35,10 @@ namespace Bucketlist
             //add api authorization
             services.AddMvc(p=>
             {
-                var authPolicy = new AuthorizationPolicyBuilder()
-                .RequireAuthenticatedUser()
-                .Build();
-                p.Filters.Add(new AuthorizeFilter(authPolicy));
+                //var authPolicy = new AuthorizationPolicyBuilder()
+                //.RequireAuthenticatedUser()
+                //.Build();
+                //p.Filters.Add(new AuthorizeFilter(authPolicy));
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
 

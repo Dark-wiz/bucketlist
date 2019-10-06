@@ -67,18 +67,19 @@ namespace Bucketlist.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDetailsDto loginDetails)
         {
-            try
+            try 
             {
-                var checkUser = await UserManager.FindByEmailAsync(loginDetails.Email);
+                //string emailNmae = $"{loginDetails.Username.Replace(" ", "_")}@gmail.com";
+                var checkUser = await UserManager.FindByEmailAsync(loginDetails.Username);
                 if (checkUser != null)
                     return BadRequest("registration failed", (int)Enums.StatusCode.Error);
                 if (loginDetails.Password != loginDetails.ConfirmPassword)
                     return BadRequest("registration failed", (int)Enums.StatusCode.Error);
                 User user = new User
                 {
-                    Email = loginDetails.Email,
+                    Email = loginDetails.Username,
                     PasswordHash = loginDetails.Password,
-                    UserName = loginDetails.Email
+                    UserName = loginDetails.Username
                 };
                 var done = await UserManager.CreateAsync(user, loginDetails.Password);
                 if (!done.Succeeded)

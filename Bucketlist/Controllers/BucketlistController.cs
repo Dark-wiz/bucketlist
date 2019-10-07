@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Bucketlist.Common;
 using Bucketlist.DataLayer;
 using Bucketlist.LogicLayer;
@@ -14,20 +15,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Bucketlist.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("bucketlists")]
     public class BucketlistController : BaseAPIController
     {
         readonly IService _Service;
         readonly BucketlistLogic _BucketlistLogic;
         readonly BucketlistItemLogic _BucketlistItemLogic;
+        IMapper Mapper;
+        IPaginatedResultService PaginatedResultService;
 
-
-        public BucketlistController(IService Service, BucketlistLogic BucketlistLogic, BucketlistItemLogic BucketlistItemLogic)
+        public BucketlistController(IService Service, BucketlistLogic BucketlistLogic, BucketlistItemLogic BucketlistItemLogic, IMapper mapper, IPaginatedResultService paginatedResultService)
         {
             _Service = Service;
             _BucketlistLogic = BucketlistLogic;
             _BucketlistItemLogic = BucketlistItemLogic;
+            Mapper = mapper;
+            PaginatedResultService = paginatedResultService;
         }
         //complete list
         [HttpGet("")]
@@ -39,15 +43,36 @@ namespace Bucketlist.Controllers
 
         //single list
         [HttpGet("{id}")]
-        public IActionResult GetList(string id)
+        public IActionResult GetListById(string id, string username)
         {
-            BucketlistModel item = _BucketlistLogic.GetEntityBy(p => p.Id.ToString() == id);
+            BucketlistModel item = _BucketlistLogic.GetEntityBy(p => p.Id.ToString() == id && p.Created_By == username);
             if (item != null)
             {
                 return Ok(item, (int)Enums.StatusCode.Success, "single bucket item", true);
             }
             return BadRequest(null, (int)Enums.StatusCode.Error);
+        }
 
+        //handle pagination
+        [AllowAnonymous]
+        [HttpGet("{page}/{limit}")]
+        public IActionResult GetDataInPages(int page, int limit)
+        {
+            IEnumerable<BucketlistModel> bucketlists = _BucketlistLogic.GetAllEntities();
+            var list = PaginatedResultService.PaginateRecords<BucketlistViewModel,BucketlistModel>(page, limit, bucketlists);
+            return Ok(list, (int)Enums.StatusCode.Success, "All bucket lists", true);
+
+        }
+
+        [HttpGet("search/{name}")]
+        public IActionResult GetListByName(string name)
+        {
+            BucketlistModel item = _BucketlistLogic.GetEntityBy(p=>p.Name == name);
+            if (item != null)
+            {
+                return Ok(item, (int)Enums.StatusCode.Success, "single bucket item", true);
+            }
+            return BadRequest(null, (int)Enums.StatusCode.Error);
         }
 
         // add list

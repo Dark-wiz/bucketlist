@@ -1,4 +1,6 @@
-﻿using Bucketlist.DataLayer;
+﻿using AutoMapper;
+using Bucketlist.Common;
+using Bucketlist.DataLayer;
 using Bucketlist.LogicLayer;
 using Bucketlist.ModelLayer.Entity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,6 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 using Object.Jwt;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Bucketlist
@@ -41,10 +44,23 @@ namespace Bucketlist
                 //p.Filters.Add(new AuthorizeFilter(authPolicy));
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Bucketlist API", Version = "v1" });
+                c.DescribeAllEnumsAsStrings();
+                Dictionary<string, IEnumerable<string>> security = new Dictionary<string, IEnumerable<string>>
+                {
+                    {"Bearer", new string[] { }},
+                };
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
+
+                c.AddSecurityRequirement(security);
             });
             services.AddDbContext<ApplicationDbContext>(
                 options =>
@@ -131,6 +147,14 @@ namespace Bucketlist
             services.AddTransient<BucketlistLogic>();
             services.AddTransient<UserLogic>();
             services.AddTransient<BucketlistItemLogic>();
+            services.AddTransient<IPaginatedResultService, PaginatedResultService>();
+
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new MappingProfile());
+            });
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

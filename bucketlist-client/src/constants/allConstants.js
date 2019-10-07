@@ -15,6 +15,7 @@ export const bucketlistItemConstants = {
 
 export const AccountConstants = {
     ADD_USER: "ADD_USER",
+    GET_USER: "GET_USER",
     LOGIN_USER: "LOGIN_USER"
 }
 

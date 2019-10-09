@@ -1,3 +1,6 @@
+export const configure = {
+    apiUrl: "https://localhost:44351/"
+}
 export const bucketlistConstants = {
     ADD_LIST: "ADD_LIST",
     UPDATE_LIST: "UPDATE_LIST",
@@ -8,7 +11,7 @@ export const bucketlistConstants = {
 export const bucketlistItemConstants = {
     ADD_ITEM: "ADD_ITEM",
     UPDATE_ITEM: "UPDATE_ITEM",
-    GET_ITEM: "GET_ITEM",
+    GET_ITEMS: "GET_ITEMS",
     GET_SINGLE_ITEM: "GET_SINGLE_ITEM",
     DELETE_ITEM: "DELETE_ITEM"
 }
@@ -19,18 +22,23 @@ export const AccountConstants = {
     LOGIN_USER: "LOGIN_USER"
 }
 
+export const accountApi = {
+    login: "auth",
+    register: "auth/register",
+}
+
 export const bucklistApi = {
-    add_list: "bucketlist",
-    get_single_list: "bucketlist",
-    get_all_list: "bucketlist",
-    update_list: "bucketlist",
-    delete_list: "bucketlist",
+    add_list: "bucketlists",
+    get_single_list: "bucketlists",
+    get_all_list: "bucketlists",
+    update_list: "bucketlists",
+    delete_list: "bucketlists",
 }
 
 export const bucklistItemApi = {
-    add_item: "bucketlist",
-    get_single_item: "bucketlist",
-    get_all_item: "bucketlist",
-    update_item: "bucketlist",
-    delete_item: "bucketlist",
+    add_item: "bucketlists",
+    get_single_item: "bucketlists",
+    get_all_item: "bucketlists",
+    update_item: "bucketlists",
+    delete_item: "bucketlists",
 }

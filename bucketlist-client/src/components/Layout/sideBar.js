@@ -18,7 +18,7 @@ class SideBar extends Component {
             <aside className="main-sidebar col-12 col-md-3 col-lg-2 px-0" style={{ zIndex: "10" }}>
                 <div className="main-navbar">
                     <nav className="navbar align-items-stretch navbar-light bg-white flex-md-nowrap border-bottom p-0">
-                        <NavLink className="navbar-brand w-100 mr-0" to="/" style={{ lineHeight: "25px" }}>
+                        <NavLink className="navbar-brand w-100 mr-0" to="/dashboard" style={{ lineHeight: "25px" }}>
                             <div className="d-table m-auto">
                                 <img id="main-logo" className="d-inline-block align-top mr-1" style={{ maxWidth: "25px" }} src="/images/shards-dashboards-logo.svg" alt="Shards Dashboard" />
                                 <span className="d-none d-md-inline ml-1">Bucketlist Dashboard</span>
@@ -40,7 +40,6 @@ class SideBar extends Component {
                 </form>
                 <div className="nav-wrapper">
                     <ul className="nav flex-column">
-                        <NavItem label="Dashboard" icon="table_chart" link="/" className="" />
                         <li className="nav-item" style={{ cursor: 'pointer' }}>
                             <a className="nav-link" onClick={() => Auth.handleUserLogout()} >
                                 <i className="material-icons text-danger"></i> Logout

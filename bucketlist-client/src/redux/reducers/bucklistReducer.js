@@ -11,15 +11,30 @@ export const bucketlistReducer = (state = initialState, action) => {
         case bucketlistConstants.ADD_LIST:
             return {
                 ...state,
-                list: state.list,
+                submitted: action.payload
+            }
+
+        case bucketlistConstants.UPDATE_LIST:
+            return {
+                ...state,
                 submitted: action.payload
             }
 
         case bucketlistConstants.GET_LIST:
             return {
                 ...state,
-                list: state.list,
-                submitted: action.payload
+                allLists: action.payload
+            }
+
+        case bucketlistConstants.GET_SINGLE_LIST:
+            return {
+                ...state,
+                list: action.payload,
+            }
+        case bucketlistConstants.DELETE_LIST:
+            return {
+                ...state,
+                submitted: action.payload,
             }
 
         default:

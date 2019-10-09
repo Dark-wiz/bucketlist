@@ -4,6 +4,7 @@ import { createBrowserHistory } from 'history';
 export default class AuthServices {
     static getToken() {
         let token = JSON.parse(localStorage.getItem('_bucketlist_key_'));
+        console.log(token, '_bucketlist_key_')
         if (token === null) {
             return '';
         } else if (token === undefined) {

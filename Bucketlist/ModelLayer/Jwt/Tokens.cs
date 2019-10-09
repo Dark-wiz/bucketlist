@@ -6,12 +6,13 @@ namespace Object.Jwt
 {
     public class Tokens
     {
-        public static jwtObject GenerateJwt( IJwtFactory jwtFactory, User user, JwtIssuerOptions jwtOptions)
+        public static async Task<jwtObject> GenerateJwt( IJwtFactory jwtFactory, User user, JwtIssuerOptions jwtOptions)
         {
             jwtObject response = new jwtObject()
             {
-                id = user.Id,
-                expires_in = (int)jwtOptions.ValidFor.Hours
+                id = user.UserName,
+                expires_in = (int)jwtOptions.ValidFor.Hours,
+                auth_token = await jwtFactory.GenerateEncodedToken(user)
             };
             return response;
         }

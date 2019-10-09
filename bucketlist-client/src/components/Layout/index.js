@@ -5,7 +5,6 @@ const Layout = props => {
     return (
         <div className="container-fluid">
             <div className="row">
-                {/* <EditContract /> */}
                 <SideBar />
                 <div className="main-content col-lg-10 col-md-9 col-sm-12 p-0 offset-lg-2 offset-md-3">
                     <NavBar />

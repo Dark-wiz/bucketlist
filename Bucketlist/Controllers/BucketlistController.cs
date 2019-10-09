@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Bucketlist.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("bucketlists")]
     public class BucketlistController : BaseAPIController
     {
@@ -43,9 +43,9 @@ namespace Bucketlist.Controllers
 
         //single list
         [HttpGet("{id}")]
-        public IActionResult GetListById(string id, string username)
+        public IActionResult GetListById(string id)
         {
-            BucketlistModel item = _BucketlistLogic.GetEntityBy(p => p.Id.ToString() == id && p.Created_By == username);
+            BucketlistModel item = _BucketlistLogic.GetEntityBy(p => p.Id.ToString() == id);
             if (item != null)
             {
                 return Ok(item, (int)Enums.StatusCode.Success, "single bucket item", true);
@@ -54,12 +54,11 @@ namespace Bucketlist.Controllers
         }
 
         //handle pagination
-        [AllowAnonymous]
         [HttpGet("{page}/{limit}")]
         public IActionResult GetDataInPages(int page, int limit)
         {
             IEnumerable<BucketlistModel> bucketlists = _BucketlistLogic.GetAllEntities();
-            var list = PaginatedResultService.PaginateRecords<BucketlistViewModel,BucketlistModel>(page, limit, bucketlists);
+            var list = PaginatedResultService.PaginateRecords<BucketlistViewModel, BucketlistModel>(page, limit, bucketlists);
             return Ok(list, (int)Enums.StatusCode.Success, "All bucket lists", true);
 
         }
@@ -67,7 +66,7 @@ namespace Bucketlist.Controllers
         [HttpGet("search/{name}")]
         public IActionResult GetListByName(string name)
         {
-            BucketlistModel item = _BucketlistLogic.GetEntityBy(p=>p.Name == name);
+            BucketlistModel item = _BucketlistLogic.GetEntityBy(p => p.Name == name);
             if (item != null)
             {
                 return Ok(item, (int)Enums.StatusCode.Success, "single bucket item", true);
@@ -77,37 +76,32 @@ namespace Bucketlist.Controllers
 
         // add list
         [HttpPost("")]
-        public void Post([FromBody]BucketlistDto dto)
+        public IActionResult Post([FromBody]BucketlistDto dto)
         {
-            if (dto.Items != null)
+            BucketlistModel bucketlistModel = new BucketlistModel
             {
-                BucketlistModel bucketlistModel = new BucketlistModel
-                {
-                    Created_By = dto.Created_By,
-                    Date_Created = dto.Date_Created,
-                    Date_Modified = dto.Date_Modified,
-                    Items = dto.Items == null ? "Item not set" : "item set",
-                    Name = dto.Name
-                };
-                _Service.Add(bucketlistModel);
+                Created_By = dto.Created_By,
+                Date_Created = DateTime.Today,
+                Date_Modified = DateTime.Today,
+                Items = dto.Items.Count <= 0 ? "Item not set" : "item set",
+                Name = dto.Name
+            };
+            _Service.Add(bucketlistModel);
+            if (dto.Items.Count > 0)
+            {
 
-                AddBucketlistItem(dto, bucketlistModel.Id.ToString());
-            }
-        }
-        [NonAction]
-        public IActionResult AddBucketlistItem(BucketlistDto dto, string bucketId)
-        {
-            foreach (var item in dto.Items)
-            {
-                BucketlistItem bucketlistItem = new BucketlistItem
+                foreach (var item in dto.Items)
                 {
-                    Date_Created = item.Date_Created,
-                    Date_Modified = item.Date_Modified,
-                    Done = item.Done,
-                    Name = item.Name,
-                    BucketlistId = bucketId
-                };
-                _Service.Add(bucketlistItem);
+                    BucketlistItem bucketlistItem = new BucketlistItem
+                    {
+                        Date_Created = DateTime.Today.Date,
+                        Date_Modified = DateTime.Today.Date,
+                        Done = item.Done,
+                        Name = item.Name,
+                        BucketlistId = bucketlistModel.Id.ToString()
+                    };
+                    _Service.Add(bucketlistItem);
+                }
             }
             _Service.Save();
 
@@ -122,7 +116,7 @@ namespace Bucketlist.Controllers
             {
                 bucketItem.Created_By = dto.Created_By;
                 bucketItem.Date_Created = dto.Date_Created;
-                bucketItem.Date_Modified = dto.Date_Modified;
+                bucketItem.Date_Modified = DateTime.Today;
                 bucketItem.Name = dto.Name;
                 _Service.Save();
                 return Ok("Updated successfully", isSuccessful: true, status: (int)Enums.StatusCode.Success);
@@ -132,25 +126,22 @@ namespace Bucketlist.Controllers
 
 
         [HttpPost("{id}/items")]
-        public IActionResult AddBucklistItem([FromBody]AddBucketlistItemDto items, string id)
+        public IActionResult AddBucklistItem([FromBody]BucketlistItemDto items, string id)
         {
             BucketlistModel bucketItem = _BucketlistLogic.GetEntityBy(p => p.Id.ToString() == id);
             if (bucketItem != null)
             {
-                foreach (var item in items.ItemDtos)
-                {
                     BucketlistItem bucketlistItem = new BucketlistItem
                     {
-                        Date_Created = item.Date_Created,
-                        Date_Modified = item.Date_Modified,
-                        Done = item.Done,
-                        Name = item.Name,
+                        Date_Created = DateTime.Today,
+                        Date_Modified = DateTime.Today,
+                        Done = items.Done,
+                        Name = items.Name,
                         BucketlistId = bucketItem.Id.ToString()
                     };
                     _Service.Add(bucketlistItem);
-                }
                 _Service.Save();
-                return Ok(items, (int)Enums.StatusCode.Success);
+                return Ok(items, (int)Enums.StatusCode.Success, isSuccessful:true);
             }
             return BadRequest(null, (int)Enums.StatusCode.Error);
         }
@@ -165,15 +156,15 @@ namespace Bucketlist.Controllers
             {
                 _BucketlistLogic.Delete(bucketItem);
                 _Service.Save();
-                return Ok(null,(int)Enums.StatusCode.Success, "deleted successfully", true);
+                return Ok(null, (int)Enums.StatusCode.Success, "deleted successfully", true);
             }
             return BadRequest(null, (int)Enums.StatusCode.Error, "couldn't delete");
         }
 
-        [HttpGet("id/items")]
+        [HttpGet("{id}/items")]
         public IActionResult GetItemsInList(string id)
         {
-            List<BucketlistItem> items = _BucketlistItemLogic.GetEntitiesBy(p => p.BucketlistId.ToString() == id);
+            List<BucketlistItem> items = _BucketlistItemLogic.GetEntitiesBy(p => p.BucketlistId.ToLower() == id);
             return Ok(items, (int)Enums.StatusCode.Success, "All bucket lists items", true);
         }
 
@@ -201,7 +192,7 @@ namespace Bucketlist.Controllers
             if (item != null)
             {
                 item.Date_Created = dto.Date_Created;
-                item.Date_Modified = dto.Date_Modified;
+                item.Date_Modified = DateTime.Today;
                 item.Done = dto.Done;
                 item.Name = dto.Name;
                 _Service.Save();

@@ -4,12 +4,10 @@ using Bucketlist.DataLayer;
 using Bucketlist.LogicLayer;
 using Bucketlist.ModelLayer.Entity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -44,15 +42,18 @@ namespace Bucketlist
                 //p.Filters.Add(new AuthorizeFilter(authPolicy));
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(p =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "Bucketlist API", Version = "v1" });
-                c.DescribeAllEnumsAsStrings();
+
+
+                p.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "Bucketlist API", Version = "v1" });
+                p.DescribeAllEnumsAsStrings();
                 Dictionary<string, IEnumerable<string>> security = new Dictionary<string, IEnumerable<string>>
                 {
                     {"Bearer", new string[] { }},
                 };
-                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+
+                p.AddSecurityDefinition("Bearer", new ApiKeyScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
                     Name = "Authorization",
@@ -60,7 +61,8 @@ namespace Bucketlist
                     Type = "apiKey"
                 });
 
-                c.AddSecurityRequirement(security);
+                p.AddSecurityRequirement(security);
+
             });
             services.AddDbContext<ApplicationDbContext>(
                 options =>
@@ -71,7 +73,18 @@ namespace Bucketlist
                     options.ConfigureWarnings(c => c.Log(CoreEventId.DetachedLazyLoadingWarning));
                 }
             );
-            services.AddCors();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    "CorsPolicy",
+                    b =>
+                        b
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        .WithOrigins("http://localhost:3000")
+                );
+            });
             services.ConfigureApplicationCookie(options =>
             {
                 // Cookie settings
@@ -169,6 +182,7 @@ namespace Bucketlist
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseAuthentication();
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 

@@ -7,7 +7,8 @@ class Login extends Component {
         super(props);
         this.state = {
             username: '',
-            password: ''
+            password: '',
+            rememberMe: false
         }
         this.onChange = this.onChange.bind(this)
         this.onSubmit = this.onSubmit.bind(this)
@@ -22,13 +23,23 @@ class Login extends Component {
         })
     }
 
+    clickCheckbox = (e) => {
+        let name = e.target.name;
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+
+        this.setState({
+            [name]: value
+        })
+    }
+
 
     onSubmit(e) {
         e.preventDefault()
-        const { username, password } = this.state
-        this.props.loginAction(username, password)
+        this.props.loginAction(this.state)
     }
+
     render() {
+
         return (
             <div className="error">
                 <div className="error__content">
@@ -49,6 +60,15 @@ class Login extends Component {
                                                     <div className="form-group col-md-12">
                                                         <label for="feLastName">Password</label>
                                                         <input type="password" className="form-control" name="password" placeholder="" onChange={this.onChange} required /> </div>
+                                                    <div className="form-group col-md-12">
+
+                                                        <label><input
+                                                            name="rememberMe"
+                                                            type="checkbox"
+                                                            checked={this.state.rememberMe}
+                                                            onChange={this.clickCheckbox} />  Remember me
+                                                        </label>
+                                                    </div>
                                                 </div>
                                                 <button type="submit" className="btn btn-accent" disabled={this.props.submitted}>Login</button>
                                             </form>

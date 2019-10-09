@@ -26,8 +26,7 @@ class Registration extends Component {
 
     onSubmit(e) {
         e.preventDefault()
-        const { username, password, confirmPassword } = this.state
-        this.props.registerAction(username, password, confirmPassword)
+        this.props.registerAction(this.state)
     }
     render() {
         return (
@@ -52,7 +51,7 @@ class Registration extends Component {
                                                         <input type="password" className="form-control" name="password" placeholder="" onChange={this.onChange} required /> </div>
                                                     <div className="form-group col-md-12">
                                                         <label for="feLastName">Confirm Password</label>
-                                                        <input type="password" className="form-control" name="password" placeholder="" onChange={this.onChange} required /> </div>
+                                                        <input type="password" className="form-control" name="confirmPassword" placeholder="" onChange={this.onChange} required /> </div>
                                                 </div>
                                                 <button type="submit" className="btn btn-accent" disabled={this.props.submitted}>Register</button>
                                             </form>

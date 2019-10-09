@@ -37,11 +37,11 @@ namespace Bucketlist.Controllers
         }
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Login(LoginDetails login)
+        public async Task<IActionResult> Login([FromBody]LoginDetails login)
         {
             try
             {
-                User user = await UserManager.FindByEmailAsync(login.Email);
+                User user = await UserManager.FindByNameAsync(login.Username);
 
                 if (user != null)
                 {
@@ -49,7 +49,7 @@ namespace Bucketlist.Controllers
                     if (!verified)
                         return BadRequest("login failed", isSuccessful: false);
                     jwtObject jwt = new jwtObject();
-                    jwt = Tokens.GenerateJwt(JwtFactory, user, JwtIssuerOptions);
+                    jwt = await Tokens.GenerateJwt(JwtFactory, user, JwtIssuerOptions);
                     var signedIn = SignInManager.PasswordSignInAsync(user, login.Password, login.RememberMe, lockoutOnFailure:true).Result;
                     if (!signedIn.Succeeded)
                         return BadRequest();
@@ -65,19 +65,19 @@ namespace Bucketlist.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDetailsDto loginDetails)
+        public async Task<IActionResult> Register([FromBody]RegisterDetailsDto loginDetails)
         {
             try 
             {
-                //string emailNmae = $"{loginDetails.Username.Replace(" ", "_")}@gmail.com";
-                var checkUser = await UserManager.FindByEmailAsync(loginDetails.Username);
+                string emailName = $"{loginDetails.Username}@gmail.com";
+                var checkUser = await UserManager.FindByNameAsync(loginDetails.Username);
                 if (checkUser != null)
                     return BadRequest("registration failed", (int)Enums.StatusCode.Error);
                 if (loginDetails.Password != loginDetails.ConfirmPassword)
                     return BadRequest("registration failed", (int)Enums.StatusCode.Error);
                 User user = new User
                 {
-                    Email = loginDetails.Username,
+                    Email = emailName,
                     PasswordHash = loginDetails.Password,
                     UserName = loginDetails.Username
                 };
